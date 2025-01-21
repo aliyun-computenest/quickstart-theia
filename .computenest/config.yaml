@@ -1,0 +1,40 @@
+Service:
+  RegionId: cn-hangzhou
+  DeployType: ros
+  DeployMetadata:
+    ServiceInstanceNameRule:
+      Prefix: theia-
+    SupplierDeployMetadata:
+      ArtifactRelation:
+        'centos_7':
+          ArtifactId: ${Artifact.EcsImage.ArtifactId}
+          ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
+    TemplateConfigs:
+      - Name: 新建ECS实例
+        Url: 'ros_templates/template-create-ecs.yaml'
+  ServiceType: private
+  ServiceInfo:
+    Locale: zh-CN
+    ShortDescription: docker deploy
+    Image: 'resources/icons/service_logo.png'
+Artifact:
+  EcsImage:
+    ArtifactType: EcsImage
+    ArtifactName: Theia
+    Description: Theia
+    ArtifactProperty:
+      RegionId: ${ImageBuilder.EcsImage.RegionId}
+      ImageId: ${ImageBuilder.EcsImage.SourceImageId}
+ImageBuilder:
+  EcsImage:
+    RegionId: ap-southeast-1
+    # 使用最新的LTS版本Alibaba Cloud Linux
+    SourceImageId: m-t4n2zwo06bdpg2lnlien
+    SystemDiskSize: 100
+    InstanceType: ecs.c6.large
+    InternetMaxBandwidthOut: 10
+    CommandType: RunShellScript
+    Timeout: 10800
+    CommandContent: |-
+        #!/bin/bash
+        echo hello
