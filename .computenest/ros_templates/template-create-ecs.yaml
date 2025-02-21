@@ -188,14 +188,16 @@ Resources:
           - Ref: EcsVpc
           - Ref: VpcId
       SecurityGroupIngress:
-        - Priority: 1
-          PortRange: 22/22
+        - PortRange: 22/22
+          Priority: 1
           SourceCidrIp: 0.0.0.0/0
           IpProtocol: tcp
-        - Priority: 1
-          PortRange: 80/80
+          NicType: internet
+        - PortRange: 3000/3000
+          Priority: 1
           SourceCidrIp: 0.0.0.0/0
           IpProtocol: tcp
+          NicType: internet
   EcsInstanceGroup:
     Type: ALIYUN::ECS::InstanceGroup
     Properties:
@@ -242,13 +244,13 @@ Outputs:
   Public IP Address:
     Value:
       Fn::Sub:
-        - 'http://${ServerAddress}:80'
+        - 'http://${ServerAddress}:3000'
         - ServerAddress:
             Fn::Select:
               - 0
               - Fn::GetAtt:
                   - EcsInstanceGroup
-                  - PublicIps
+                  - PrivateIps
 Metadata:
   ALIYUN::ROS::Interface:
     ParameterGroups:

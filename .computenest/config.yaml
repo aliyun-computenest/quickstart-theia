@@ -20,7 +20,7 @@ Service:
 Artifact:
   EcsImage:
     ArtifactType: EcsImage
-    ArtifactName: Theia
+    ArtifactName: theia
     Description: Theia
     ArtifactProperty:
       RegionId: ${ImageBuilder.EcsImage.RegionId}
