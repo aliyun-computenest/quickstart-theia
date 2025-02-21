@@ -29,7 +29,7 @@ ImageBuilder:
   EcsImage:
     RegionId: ap-southeast-1
     # 使用最新的LTS版本Alibaba Cloud Linux
-    SourceImageId: m-t4n2zwo06bdpg2lnlien
+    SourceImageId: aliyun_3_x64_20G_alibase_20250117.vhd
     SystemDiskSize: 100
     InstanceType: ecs.c6.large
     InternetMaxBandwidthOut: 10
@@ -37,4 +37,42 @@ ImageBuilder:
     Timeout: 10800
     CommandContent: |-
         #!/bin/bash
-        echo hello
+        # 安装docker-ce
+        yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+        yum makecache
+        yum install -y curl git docker-ce
+        mkdir -p /etc/docker/
+        echo '{
+            "default-address-pools": [
+                {
+                    "base": "10.255.0.0/16",
+                    "size": 24
+                }
+            ]
+        }' > /etc/docker/daemon.json
+
+        prefixChinaRegion="cn-"
+        region=$(curl -s http://100.100.100.200/latest/meta-data/region-id)
+
+        if [[ ${region} == ${prefixChinaRegion}* && ${region} != "cn-hongkong" ]]; then
+          echo '{
+              "default-address-pools": [
+                  {
+                      "base": "10.255.0.0/16",
+                      "size": 24
+                  }
+              ],
+              "registry-mirrors": [
+                  "https://mirrors-ssl.aliyuncs.com/"
+              ]
+          }' > /etc/docker/daemon.json
+        fi
+
+        sudo systemctl enable --now docker.socket
+        sudo systemctl enable --now docker.service
+
+        # 安装theia
+        docker pull ghcr.io/eclipse-theia/theia-ide/theia-ide:1.58.100
+        mkdir /home/theia
+        docker run -d -p 3000:3000 ghcr.io/eclipse-theia/theia-ide/theia-ide
+        sleep 60
